@@ -1,13 +1,11 @@
 "use client";
 
-import { useCallback, Dispatch, SetStateAction } from "react";
+import { useCallback, Dispatch, SetStateAction, useState } from "react";
 import { useDropzone } from "@uploadthing/react/hooks";
 import { generateClientDropzoneAccept } from "uploadthing/client";
-
+import { useUploadThing } from "@/lib/uploadthing"; // Adjust the path based on your setup
 import { Button } from "@/components/ui/button";
 import { convertFileToUrl } from "@/lib/utils";
-
-type FileWithPath = File & { path?: string };
 
 type FileUploaderProps = {
   onFieldChange: (url: string) => void;
@@ -20,14 +18,35 @@ export function FileUploader({
   onFieldChange,
   setFiles,
 }: FileUploaderProps) {
-  const onDrop = useCallback((acceptedFiles: FileWithPath[]) => {
+  const [files, setLocalFiles] = useState<File[]>([]);
+
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    setLocalFiles(acceptedFiles);
     setFiles(acceptedFiles);
-    onFieldChange(convertFileToUrl(acceptedFiles[0]));
+    if (acceptedFiles.length > 0) {
+      onFieldChange(convertFileToUrl(acceptedFiles[0]));
+    }
   }, []);
+
+  const { startUpload, permittedFileInfo } = useUploadThing("imageUploader", {
+    onClientUploadComplete: () => {
+      alert("Uploaded successfully!");
+    },
+    onUploadError: () => {
+      alert("Error occurred while uploading.");
+    },
+    onUploadBegin: () => {
+      alert("Upload has begun.");
+    },
+  });
+
+  const fileTypes = permittedFileInfo?.config
+    ? Object.keys(permittedFileInfo.config)
+    : [];
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
-    accept: generateClientDropzoneAccept(["image/*"]),
+    accept: fileTypes ? generateClientDropzoneAccept(fileTypes) : undefined,
   });
 
   return (
@@ -38,10 +57,10 @@ export function FileUploader({
       <input {...getInputProps()} className="cursor-pointer" />
 
       {imageUrl ? (
-        <div className="flex h-full w-full flex-1 justify-center ">
+        <div className="flex h-full w-full flex-1 justify-center">
           <img
             src={imageUrl}
-            alt="image"
+            alt="Uploaded image"
             width={250}
             height={250}
             className="w-full object-cover object-center"
@@ -53,7 +72,7 @@ export function FileUploader({
             src="/assets/icons/upload.svg"
             width={77}
             height={77}
-            alt="file upload"
+            alt="Upload"
           />
           <h3 className="mb-2 mt-2">Drag photo here</h3>
           <p className="p-medium-12 mb-4">SVG, PNG, JPG</p>
@@ -61,6 +80,12 @@ export function FileUploader({
             Select from computer
           </Button>
         </div>
+      )}
+
+      {files.length > 0 && (
+        <Button onClick={() => startUpload(files)} className="mt-4">
+          Upload {files.length} files
+        </Button>
       )}
     </div>
   );
