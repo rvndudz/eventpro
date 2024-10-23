@@ -16,7 +16,7 @@ service = Service('C:/webdrivers/chromedriver.exe')
 driver = webdriver.Chrome(service=service, options=chrome_options)
 
 # Load the webpage
-url = "https://www.ticketsministry.com/concerts"
+url = "https://www.eventbrite.com/e/international-conference-on-nursing-2025-tickets-1042239746137?aff=ebdssbdestsearch&keep_tld=1"
 driver.get(url)
 
 # Allow time for JavaScript to execute
