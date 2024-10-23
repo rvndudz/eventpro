@@ -34,3 +34,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# generated files
+event_images/
+eventbrite_images/
+/.xlsx
+/.html
