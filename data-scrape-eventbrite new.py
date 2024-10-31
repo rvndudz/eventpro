@@ -17,8 +17,6 @@ locations = config.get('locations')
 categories = config.get('categories')
 num_pages = config.get('num_pages', 2)  # Number of pages to scrape
 
-
-
 # Set up WebDriver (adjust the path to your chromedriver)
 service = Service('C:/webdrivers/chromedriver.exe')  # Update this path as needed
 driver = webdriver.Chrome(service=service)
@@ -47,6 +45,9 @@ for location in locations:
     for city in cities:
         print(f"\nScraping events for {city.title()}, {country.title()}...\n")
 
+        # Store event data
+        events_data = []
+
         for category in categories:
             print(f"Category: {category}")
 
@@ -64,15 +65,12 @@ for location in locations:
             
             MAIN_URL = f"https://www.eventbrite.com/d/{country}--{city}/{category}/"
             
-            # Store event data
-            events_data = []
-            
             # Iterate through multiple pages
             for page_number in range(1, num_pages + 1):  # Use num_pages from config
                 # Load the webpage with the current page number
                 url = f"{MAIN_URL}?page={page_number}"
                 driver.get(url)
-                time.sleep(5)  # Allow time for the page to load
+                time.sleep(15)  # Allow time for the page to load
             
                 # Parse the main page
                 main_soup = BeautifulSoup(driver.page_source, 'html.parser')
@@ -93,7 +91,7 @@ for location in locations:
             
                         # Open the event page
                         driver.get(event_link)
-                        time.sleep(3)  # Adjust sleep time as needed
+                        time.sleep(5)  # Adjust sleep time as needed
             
                         # Parse the event page
                         event_soup = BeautifulSoup(driver.page_source, 'html.parser')

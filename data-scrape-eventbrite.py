@@ -7,6 +7,8 @@ import pandas as pd
 import time
 import re
 
+MAIN_URL = "https://www.eventbrite.com/d/united-kingdom--london/business--events/"
+
 # Set up WebDriver (adjust the path to your chromedriver)
 service = Service('C:/webdrivers/chromedriver.exe')
 driver = webdriver.Chrome(service=service)
@@ -35,9 +37,9 @@ def sanitize_filename(filename):
 events_data = []
 
 # Iterate through multiple pages
-for page_number in range(1, 3):  # Adjust the range as needed
+for page_number in range(1, 2):  # Adjust the range as needed
     # Load the webpage with the current page number
-    url = f"https://www.eventbrite.com/d/sri-lanka/all-events/?page={page_number}"
+    url = f"{MAIN_URL}?page={page_number}"
     driver.get(url)
     time.sleep(5)  # Allow time for the page to load
 
@@ -114,6 +116,6 @@ driver.quit()
 df = pd.DataFrame(events_data)
 
 # Save the DataFrame to an Excel file
-df.to_excel('eventbrite_data.xlsx', index=False)
+df.to_excel('eventbrite_data_new.xlsx', index=False)
 
 print("Data extraction completed and saved to eventbrite_data.xlsx.")

@@ -1,0 +1,10 @@
+{
+  "locations": [
+    {
+      "country": "united-kingdom",
+      "cities": ["london", "manchester"]
+    }
+  ],
+  "categories": ["science-and-tech", "film-and-media"],
+  "num_pages": 2
+}
