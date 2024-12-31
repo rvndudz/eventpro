@@ -147,7 +147,7 @@ for location in locations:
         # Save the DataFrame to an Excel file inside the city folder
         if events_data:
             df = pd.DataFrame(events_data)
-            excel_file_path = os.path.join(city_folder, 'eventbrite_data_new.xlsx')
+            excel_file_path = os.path.join(city_folder, 'eventbrite_data_new2.xlsx')
             df.to_excel(excel_file_path, index=False)
             print(f"Data extraction completed for {city.title()} and saved to {excel_file_path}.")
         else:
