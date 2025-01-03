@@ -14,7 +14,7 @@ const Header = () => {
             src="/assets/images/logo.png"
             width={128}
             height={38}
-            alt="Evently logo"
+            alt="EventPro logo"
           />
         </Link>
 
