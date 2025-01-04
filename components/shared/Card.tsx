@@ -1,10 +1,13 @@
+"use client"; // Mark the component as a client component
+
 import { IEvent } from "@/lib/database/models/event.model";
 import { formatDateTime } from "@/lib/utils";
-import { auth } from "@clerk/nextjs/server";
+import { useAuth } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 import { DeleteConfirmation } from "./DeleteConfirmation";
+import LoveButton from "./LoveButton";
 
 type CardProps = {
   event: IEvent;
@@ -13,7 +16,7 @@ type CardProps = {
 };
 
 const Card = ({ event, hasOrderLink, hidePrice }: CardProps) => {
-  const { sessionClaims } = auth();
+  const sessionClaims  = useAuth();
   const userId = sessionClaims?.userId as string;
 
   const isEventCreator = userId === event.organizer._id.toString();
@@ -25,7 +28,15 @@ const Card = ({ event, hasOrderLink, hidePrice }: CardProps) => {
         style={{ backgroundImage: `url(${event.imageUrl})` }}
         className="flex-center flex-grow bg-gray-50 bg-cover bg-center text-grey-500"
       />
-      {/* IS EVENT CREATOR ... */}
+
+      {/* Love Button */}
+      <LoveButton
+        initialLiked={false} // Optional: Replace with actual data
+        onToggle={(isLiked) => {
+          console.log(`Event ${event._id} isLiked:`, isLiked);
+        }}
+        size={24}
+      />
 
       {isEventCreator && !hidePrice && (
         <div className="absolute right-2 top-2 flex flex-col gap-4 rounded-xl bg-white p-3 shadow-sm transition-all">
