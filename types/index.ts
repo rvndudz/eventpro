@@ -131,6 +131,30 @@ export type GetOrdersByUserParams = {
   page: string | number | null
 }
 
+// ====== LIKE PARAMS
+export type LikedParams = {
+  eventTitle: string
+  eventId: string
+  userId: string
+}
+
+export type AddLikeParams = {
+  eventId: string
+  userId: string
+  createdAt: Date
+}
+
+export type GetLikesByEventParams = {
+  eventId: string
+  searchString: string
+}
+
+export type GetLikesByUserParams = {
+  userId: string | null
+  limit?: number
+  page: string | number | null
+}
+
 // ====== URL QUERY PARAMS
 export type UrlQueryParams = {
   params: string
