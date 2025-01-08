@@ -24,14 +24,19 @@ const LoveButton = ({ initialLiked = false, onToggle, size = 24 }: LoveButtonPro
   return (
     <div
       onClick={handleToggle}
-      className="cursor-pointer rounded-full bg-white p-2 shadow-sm transition-all hover:bg-gray-100"
+      className={`cursor-pointer rounded-full p-2 shadow-sm transition-all hover:bg-gray-100 ${
+        isLiked ? "bg-red-100" : "bg-white"
+      }`}
       style={{ width: size + 8, height: size + 8 }}
     >
       <Image
-        src={isLiked ? "/assets/icons/heart-filled.svg" : "/assets/icons/heart-outline.svg"}
+        src={isLiked ? "/icons/heart-filled.svg" : "/icons/heart-outline.svg"}
         alt={isLiked ? "Loved" : "Not loved"}
         width={size}
         height={size}
+        style={{
+          filter: isLiked ? "invert(20%) sepia(90%) saturate(500%) hue-rotate(-10deg)" : "none",
+        }}
       />
     </div>
   );
