@@ -17,9 +17,6 @@ type CardProps = {
 
 const Card = ({ event, hasOrderLink, hidePrice }: CardProps) => {
   const { isLoaded, userId } = useAuth();
-console.log("Auth Loaded:", isLoaded);
-console.log("User ID:", userId);
-console.log("Event Organizer ID:", event.organizer._id.toString());
 
   // Check if the auth state is loaded before proceeding
   if (!isLoaded) {
