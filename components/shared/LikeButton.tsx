@@ -6,6 +6,7 @@ import Link from 'next/link'
 import React from 'react'
 import { Button } from '../ui/button'
 import Like from './Like'
+import Image from "next/image";
 
 const LikeButton = ({ event }: { event: IEvent }) => {
   const { user } = useUser();
@@ -15,13 +16,22 @@ const LikeButton = ({ event }: { event: IEvent }) => {
     <div className="flex items-center gap-3">
       <>
         <SignedOut>
-          <Button asChild className="button rounded-full" size="lg">
-            <Link href="/sign-in">
-              LIKE
-            </Link>
-          </Button>
+          <Link href="/sign-in">
+            <div
+              className="cursor-pointer rounded-full p-2 shadow-sm transition-all hover:bg-gray-100 bg-white"
+              style={{ width: 35, height: 35 }}
+            >
+              <Image
+                src="/icons/heart-outline.svg"
+                alt="Not loved"
+                width={50}
+                height={50}
+                style={{ filter: "none" }}
+              />
+            </div>
+          </Link>
         </SignedOut>
-
+        
         <SignedIn>
           <Like event={event} userId={userId} />
         </SignedIn>

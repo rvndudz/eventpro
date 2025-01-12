@@ -80,4 +80,14 @@ export const isEventLikedByUser = async (eventId: string, userId: string): Promi
   }
 };
 
-// GET LIKES BY EVENT
+export async function getLikedEventsByUser(userId: string): Promise<string[]> {
+  try {
+    await connectToDatabase();
+    const likes = await Like.find({ liker: userId }).select('event');
+    // Each "like" has `like.event` as an ObjectId; convert to string
+    return likes.map((like) => like.event.toString());
+  } catch (error) {
+    console.error('Error in getLikedEventsByUser:', error);
+    return [];
+  }
+}

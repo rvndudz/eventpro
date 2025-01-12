@@ -1,50 +1,45 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { IEvent } from '@/lib/database/models/event.model';
 import { Button } from '../ui/button';
-import { addLikeToEvent, removeLikeFromEvent, isEventLikedByUser } from '@/lib/actions/like.actions';
+import { useLikeStore } from '@/lib/store/like.store';
+import Image from "next/image";
 
-const Like = ({ event, userId }: { event: IEvent; userId: string }) => {
-  const [isLiked, setIsLiked] = useState(false);
+function Like({ event, userId }: { event: IEvent; userId: string }) {
+  const { likedEvents, fetchLikedEvents, toggleEventLike } = useLikeStore();
 
-  // Check if the user has already liked this event
   useEffect(() => {
-    const fetchLikeStatus = async () => {
-      try {
-        const liked = await isEventLikedByUser(event._id, userId);
-        setIsLiked(liked);
-      } catch (error) {
-        console.error('Error fetching like status:', error);
-      }
-    };
+    // Fetch the user's liked events when this component mounts
+    // (or whenever userId changes).
+    fetchLikedEvents(userId);
+  }, [userId, fetchLikedEvents]);
 
-    fetchLikeStatus();
-  }, [event._id, userId]);
+  // Check if this particular event is liked by seeing if its ID is in likedEvents
+  const isLiked = likedEvents.includes(event._id);
 
+  // Toggle like/unlike in both server and store
   const handleLikeToggle = async () => {
-    try {
-      if (isLiked) {
-        await removeLikeFromEvent(event._id, userId);
-        console.log('Disliked successfully!');
-      } else {
-        await addLikeToEvent({
-          eventId: event._id,
-          userId: userId,
-          createdAt: new Date(),
-        });
-        console.log('Liked successfully!');
-      }
-
-      setIsLiked(!isLiked); // Toggle the liked state
-    } catch (error) {
-      console.error(`Failed to ${isLiked ? 'dislike' : 'like'}:`, error);
-    }
+    await toggleEventLike(event._id, userId);
   };
 
   return (
-    <Button onClick={handleLikeToggle} type="button" size="lg" className="button sm:w-fit">
-      {isLiked ? 'DISLIKE' : 'LIKE'}
-    </Button>
+    <div
+      onClick={handleLikeToggle}
+      className={`cursor-pointer rounded-full p-2 shadow-sm transition-all hover:bg-gray-100 ${
+        isLiked ? "bg-red-100" : "bg-white"
+      }`}
+      style={{ width:   35, height:  35 }}
+    >
+      <Image
+        src={isLiked ? "/icons/heart-filled.svg" : "/icons/heart-outline.svg"}
+        alt={isLiked ? "Loved" : "Not loved"}
+        width={50}
+        height={50}
+        style={{
+          filter: isLiked ? "invert(20%) sepia(90%) saturate(500%) hue-rotate(-10deg)" : "none",
+        }}
+      />
+    </div>
   );
-};
+}
 
 export default Like;
