@@ -8,8 +8,12 @@ export const headerLinks = [
     route: '/events/create',
   },
   {
-    label: 'My Profile',
-    route: '/profile',
+    label: 'My Tickets',
+    route: '/tickets',
+  },
+  {
+    label: 'My Events',
+    route: '/events',
   },
 ]
 
