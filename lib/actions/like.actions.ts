@@ -1,136 +1,83 @@
 "use server";
 
 import {
-  LikedParams,
   AddLikeParams,
-  GetLikesByEventParams,
-  GetLikesByUserParams,
+  RemoveLikeParams
 } from "@/types";
 import { handleError } from "../utils";
 import { connectToDatabase } from "../database";
-import Like from "../database/models/like.model";
+import Like, { ILike } from "../database/models/like.model";
 import Event from "../database/models/event.model";
 import { ObjectId } from "mongodb";
 import User from "../database/models/user.model";
 
-export const getLikeForEvent = async (event: LikedParams) => {
-  const price = 100;
-};
+// ADD LIKE TO EVENT
+export const addLikeToEvent = async (like: AddLikeParams) => {
+  console.log('addLikeToEvent function called with:', like);
 
-export const addLike = async (like: AddLikeParams) => {
   try {
     await connectToDatabase();
+    console.log('Database connected successfully');
 
     const newLike = await Like.create({
-      ...like,
+      createdAt: like.createdAt,
       event: like.eventId,
-      user: like.userId,
+      liker: like.userId, // Assuming `buyer` is mapped to the `userId`
     });
 
+    console.log('Like created successfully:', newLike);
     return JSON.parse(JSON.stringify(newLike));
   } catch (error) {
+    console.error('Error creating like:', error);
     handleError(error);
   }
 };
 
-// GET ORDERS BY EVENT
-export async function getOrdersByEvent({
-  searchString,
-  eventId,
-}: GetLikesByEventParams) {
+
+// REMOVE LIKE FROM EVENT
+export const removeLikeFromEvent = async (eventId: string, userId: string) => {
+  try {
+    await connectToDatabase();
+    console.log('Database connected successfully');
+
+    // Check if event exists
+    const event = await Event.findById(eventId);
+    if (!event) {
+      throw new Error('Event not found');
+    }
+
+    // Check if user exists
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    // Find and remove the like
+    const like = await Like.findOneAndDelete({ event: eventId, liker: userId });
+    if (!like) {
+      console.log('Like not found for this user and event.');
+      return { message: 'Like not found' }; // Optional: Return a message if the like doesn't exist
+    }
+
+    console.log('Like removed successfully:', like);
+    return JSON.parse(JSON.stringify(like));
+  } catch (error) {
+    console.error('Error removing like:', error);
+    handleError(error); // This is your custom error handler
+  }
+};
+
+// CHECK IF USER LIKED AN EVENT
+export const isEventLikedByUser = async (eventId: string, userId: string): Promise<boolean> => {
   try {
     await connectToDatabase();
 
-    if (!eventId) throw new Error("Event ID is required");
-    const eventObjectId = new ObjectId(eventId);
-
-    const orders = await Like.aggregate([
-      {
-        $lookup: {
-          from: "users",
-          localField: "buyer",
-          foreignField: "_id",
-          as: "buyer",
-        },
-      },
-      {
-        $unwind: "$buyer",
-      },
-      {
-        $lookup: {
-          from: "events",
-          localField: "event",
-          foreignField: "_id",
-          as: "event",
-        },
-      },
-      {
-        $unwind: "$event",
-      },
-      {
-        $project: {
-          _id: 1,
-          totalAmount: 1,
-          createdAt: 1,
-          eventTitle: "$event.title",
-          eventId: "$event._id",
-          buyer: {
-            $concat: ["$buyer.firstName", " ", "$buyer.lastName"],
-          },
-        },
-      },
-      {
-        $match: {
-          $and: [
-            { eventId: eventObjectId },
-            { buyer: { $regex: RegExp(searchString, "i") } },
-          ],
-        },
-      },
-    ]);
-
-    return JSON.parse(JSON.stringify(orders));
+    const like = await Like.findOne({ event: eventId, liker: userId });
+    return !!like; // Return true if the like exists, otherwise false
   } catch (error) {
-    handleError(error);
+    console.error("Error checking if event is liked by user:", error);
+    throw new Error("Failed to check like status");
   }
-}
+};
 
-// GET ORDERS BY USER
-export async function getOrdersByUser({
-  userId,
-  limit = 3,
-  page,
-}: GetLikesByUserParams) {
-  try {
-    await connectToDatabase();
-
-    const skipAmount = (Number(page) - 1) * limit;
-    const conditions = { buyer: userId };
-
-    const orders = await Like.distinct("event._id")
-      .find(conditions)
-      .sort({ createdAt: "desc" })
-      .skip(skipAmount)
-      .limit(limit)
-      .populate({
-        path: "event",
-        model: Event,
-        populate: {
-          path: "organizer",
-          model: User,
-          select: "_id firstName lastName",
-        },
-      });
-
-    const ordersCount = await Like.distinct("event._id").countDocuments(
-      conditions
-    );
-
-    return {
-      data: JSON.parse(JSON.stringify(orders)),
-      totalPages: Math.ceil(ordersCount / limit),
-    };
-  } catch (error) {
-    handleError(error);
-  }
-}
+// GET LIKES BY EVENT

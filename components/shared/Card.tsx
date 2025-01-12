@@ -1,13 +1,13 @@
-"use client"; // Mark the component as a client component
+"use server"; // Mark the component as a client component
 
 import { IEvent } from "@/lib/database/models/event.model";
 import { formatDateTime } from "@/lib/utils";
-import { useAuth } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 import { DeleteConfirmation } from "./DeleteConfirmation";
-import LoveButton from "./LoveButton";
+import LikeButton from "./LikeButton";
 
 type CardProps = {
   event: IEvent;
@@ -16,13 +16,8 @@ type CardProps = {
 };
 
 const Card = ({ event, hasOrderLink, hidePrice }: CardProps) => {
-  const { isLoaded, userId } = useAuth();
-
-  // Check if the auth state is loaded before proceeding
-  if (!isLoaded) {
-    // Optional: Render a loading state or skeleton while waiting for auth to load
-    return null;
-  }
+  const { sessionClaims } = auth();
+  const userId = sessionClaims?.userId as string;
 
   const isEventCreator = userId === event.organizer._id.toString();
 
@@ -36,13 +31,8 @@ const Card = ({ event, hasOrderLink, hidePrice }: CardProps) => {
       />
   
       {/* Love Button */}
-      <div className="absolute right-2 top-2 z-10">
-        <LoveButton
-          initialLiked={false} // Replace with actual like state if available
-          onToggle={(isLiked) => {
-            console.log(`Event ${event._id} isLiked:`, isLiked);
-          }}
-          size={24}
+      <div className="absolute left-2 top-2 z-10">
+        <LikeButton event={event}
         />
       </div>
   

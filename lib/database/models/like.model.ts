@@ -30,7 +30,7 @@ const LikeSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'Event',
   },
-  buyer: {
+  liker: {
     type: Schema.Types.ObjectId,
     ref: 'User',
   },

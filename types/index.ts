@@ -132,13 +132,13 @@ export type GetOrdersByUserParams = {
 }
 
 // ====== LIKE PARAMS
-export type LikedParams = {
-  eventTitle: string
+export type AddLikeParams = {
   eventId: string
   userId: string
+  createdAt: Date
 }
 
-export type AddLikeParams = {
+export type RemoveLikeParams = {
   eventId: string
   userId: string
   createdAt: Date
